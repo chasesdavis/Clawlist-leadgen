@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head><title>Craigslist LeadGen Setup</title><style>body{font-family: system-ui; max-width: 600px; margin: 40px auto;}</style></head>
+<body>
+<h1>🚀 Craigslist LeadGen Beast Setup</h1>
+<form id="form">
+  <label>Main Gmail (OAuth):</label><input id="mainGmail" type="email" required><br><br>
+  <label>6 Burner Gmails (one per line):</label><textarea id="burners" rows="6" placeholder="burner1@gmail.com:pass"></textarea><br><br>
+  <label>Residential Proxies (one per burner):</label><textarea id="proxies" rows="6" placeholder="user:pass@ip:port"></textarea><br><br>
+  <label>Your Base Costs (JSON):</label><textarea id="costs" rows="4">{"hourly":85,"outsourcing_react":1200,"margin":0.45}</textarea><br><br>
+  <button type="submit">Generate 1-Click Deploy Command</button>
+</form>
+<pre id="output"></pre>
+
+<script>
+document.getElementById('form').onsubmit = e => {
+  e.preventDefault();
+  const data = {
+    mainGmail: document.getElementById('mainGmail').value,
+    burners: document.getElementById('burners').value.trim().split('\n'),
+    proxies: document.getElementById('proxies').value.trim().split('\n'),
+    costs: JSON.parse(document.getElementById('costs').value)
+  };
+  const token = btoa(JSON.stringify(data)); // simple base64 – good enough for MVP
+  const cmd = `curl -fsSL https://raw.githubusercontent.com/openclaw/deploy-templates/main/leadgen-craigslist.sh | bash -s -- ${token}`;
+  document.getElementById('output').textContent = cmd + '\n\nCopy & paste this on your fresh Ubuntu 24.04 VPS';
+};
+</script>
+</body>
+</html>
