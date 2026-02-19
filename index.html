@@ -1,30 +1,70 @@
 <!DOCTYPE html>
-<html>
-<head><title>Craigslist LeadGen Setup</title><style>body{font-family: system-ui; max-width: 600px; margin: 40px auto;}</style></head>
-<body>
-<h1>🚀 Craigslist LeadGen Beast Setup</h1>
-<form id="form">
-  <label>Main Gmail (OAuth):</label><input id="mainGmail" type="email" required><br><br>
-  <label>6 Burner Gmails (one per line):</label><textarea id="burners" rows="6" placeholder="burner1@gmail.com:pass"></textarea><br><br>
-  <label>Residential Proxies (one per burner):</label><textarea id="proxies" rows="6" placeholder="user:pass@ip:port"></textarea><br><br>
-  <label>Your Base Costs (JSON):</label><textarea id="costs" rows="4">{"hourly":85,"outsourcing_react":1200,"margin":0.45}</textarea><br><br>
-  <button type="submit">Generate 1-Click Deploy Command</button>
-</form>
-<pre id="output"></pre>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Craigslist LeadGen Wizard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body { font-family: system-ui, sans-serif; }</style>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen">
+  <div class="max-w-xl mx-auto pt-16 px-6">
+    <div class="text-center mb-10">
+      <div class="text-6xl mb-4">🦞</div>
+      <h1 class="text-4xl font-bold">Craigslist LeadGen Beast</h1>
+      <p class="text-zinc-400 mt-2">6-burner MVP – ready for your Bluehost VPS</p>
+    </div>
 
-<script>
-document.getElementById('form').onsubmit = e => {
-  e.preventDefault();
-  const data = {
-    mainGmail: document.getElementById('mainGmail').value,
-    burners: document.getElementById('burners').value.trim().split('\n'),
-    proxies: document.getElementById('proxies').value.trim().split('\n'),
-    costs: JSON.parse(document.getElementById('costs').value)
-  };
-  const token = btoa(JSON.stringify(data)); // simple base64 – good enough for MVP
-  const cmd = `curl -fsSL https://raw.githubusercontent.com/openclaw/deploy-templates/main/leadgen-craigslist.sh | bash -s -- ${token}`;
-  document.getElementById('output').textContent = cmd + '\n\nCopy & paste this on your fresh Ubuntu 24.04 VPS';
-};
-</script>
+    <div class="bg-zinc-900 rounded-3xl p-8">
+      <form id="wizard" class="space-y-8">
+        <div>
+          <label class="block text-sm mb-2 font-medium">Main Gmail (for dashboard + OAuth)</label>
+          <input id="mainGmail" type="email" required class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 focus:outline-none focus:border-green-500">
+        </div>
+        <div>
+          <label class="block text-sm mb-2 font-medium">6 Burner Gmails (one per line – email:password)</label>
+          <textarea id="burners" rows="6" required placeholder="burner1@gmail.com:password123
+burner2@gmail.com:password123" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 font-mono text-sm"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm mb-2 font-medium">6 Residential Proxies (one per line)</label>
+          <textarea id="proxies" rows="6" required placeholder="user:pass@123.45.67.89:1234" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 font-mono text-sm"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm mb-2 font-medium">Costs JSON (leave default or edit)</label>
+          <textarea id="costs" rows="3" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 font-mono text-sm">{"hourly":85,"react_native":1500,"margin":0.45}</textarea>
+        </div>
+        <button type="submit" class="w-full bg-green-600 hover:bg-green-500 transition py-5 rounded-2xl font-semibold text-lg">Generate My Personalized 1-Click Deploy Command</button>
+      </form>
+    </div>
+
+    <div id="result" class="hidden mt-8">
+      <div class="bg-zinc-900 rounded-3xl p-6">
+        <p class="text-green-400 text-sm mb-3">Copy & paste this exact command on your Bluehost VPS:</p>
+        <pre id="command" class="bg-black p-6 rounded-2xl text-green-300 overflow-auto text-sm font-mono whitespace-pre-wrap"></pre>
+        <button onclick="copyCommand()" class="mt-4 text-blue-400 hover:text-blue-300 font-medium">📋 Copy to Clipboard</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('wizard').onsubmit = function(e) {
+      e.preventDefault();
+      const data = {
+        mainGmail: document.getElementById('mainGmail').value.trim(),
+        burners: document.getElementById('burners').value.trim().split('\n').map(l => l.trim()).filter(Boolean),
+        proxies: document.getElementById('proxies').value.trim().split('\n').map(l => l.trim()).filter(Boolean),
+        costs: document.getElementById('costs').value.trim() || '{"hourly":85,"react_native":1500,"margin":0.45}'
+      };
+      const token = btoa(JSON.stringify(data));
+      const cmd = `curl -fsSL https://raw.githubusercontent.com/chasesdavis/deploy-templates/main/leadgen-craigslist-almalinux.sh | bash -s -- ${token}`;
+      document.getElementById('command').textContent = cmd;
+      document.getElementById('result').classList.remove('hidden');
+    };
+    function copyCommand() {
+      navigator.clipboard.writeText(document.getElementById('command').textContent);
+      alert('✅ Command copied! Paste it on your VPS.');
+    }
+  </script>
 </body>
 </html>
